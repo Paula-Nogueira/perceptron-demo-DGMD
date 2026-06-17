@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Weighted Perceptron Demo</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+    }
+
+    .wrapper {
+      width: 900px;
+      max-width: 95vw;
+      text-align: center;
+    }
+
+    .diagram {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      margin: 0 auto;
+    }
+
+    .circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 140px;
+      height: 140px;
+      border: 4px solid #222;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 16px;
+    }
+
+    .threshold-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #222;
+    }
+
+    .threshold-group input {
+      width: 60px;
+      padding: 6px;
+      border: 2px solid #999;
+      border-radius: 8px;
+      text-align: center;
+      font-size: 16px;
+    }
+
+    .line {
+      position: absolute;
+      height: 4px;
+      background: #222;
+      transform-origin: left center;
+    }
+
+    .input-line.top {
+      width: 190px;
+      left: 230px;
+      top: 110px;
+      transform: rotate(24deg);
+    }
+
+    .input-line.middle {
+      width: 195px;
+      left: 195px;
+      top: 198px;
+    }
+
+    .input-line.bottom {
+      width: 190px;
+      left: 230px;
+      top: 285px;
+      transform: rotate(-24deg);
+    }
+
+    .output-line {
+      width: 185px;
+      left: 520px;
+      top: 198px;
+    }
+
+    .input-group {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #222;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .input-row input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      margin: 0;
+    }
+
+    .weight-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .weight-row input {
+      width: 140px;
+      padding: 0;
+      border: none;
+    }
+
+    .weight-value {
+      min-width: 18px;
+      text-align: left;
+    }
+
+    .input-1 {
+      left: 10px;
+      top: 105px;
+    }
+
+    .input-2 {
+      left: -35px;
+      top: 185px;
+    }
+
+    .input-3 {
+      left: -10px;
+      top: 275px;
+    }
+
+    .output {
+      position: absolute;
+      right: 30px;
+      top: 158px;
+      width: 120px;
+      font-size: 58px;
+    }
+    .output_q {
+      position: absolute;
+      right: 30px;
+      top: 28px;
+      width: 120px;
+      font-size: 28px;
+    }
+
+    .controls {
+      margin-top: 0px;
+    }
+
+    .sum-display {
+      margin-bottom: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #222;
+    }
+
+    .hint {
+      margin-top: 12px;
+      color: #555;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="diagram">
+      <div class="input-group input-1">
+        <div class="input-row">
+          <label for="input1">Is it sunny outside?</label>
+          <input id="input1" type="checkbox">
+        </div>
+        <div class="weight-row">
+          <label for="weight1">Weight</label>
+          <input id="weight1" type="range" min="1" max="10" value="1">
+          <span id="weightValue1" class="weight-value">1</span>
+        </div>
+      </div>
+
+      <div class="input-group input-2">
+        <div class="input-row">
+          <label for="input2">Are my friends going?</label>
+          <input id="input2" type="checkbox">
+        </div>
+        <div class="weight-row">
+          <label for="weight2">Weight</label>
+          <input id="weight2" type="range" min="1" max="10" value="1">
+          <span id="weightValue2" class="weight-value">1</span>
+        </div>
+      </div>
+
+      <div class="input-group input-3">
+        <div class="input-row">
+          <label for="input3">Is my homework done?</label>
+          <input id="input3" type="checkbox">
+        </div>
+        <div class="weight-row">
+          <label for="weight3">Weight</label>
+          <input id="weight3" type="range" min="1" max="10" value="1">
+          <span id="weightValue3" class="weight-value">1</span>
+        </div>
+      </div>
+
+      <div id="inputLineTop" class="line input-line top"></div>
+      <div id="inputLineMiddle" class="line input-line middle"></div>
+      <div id="inputLineBottom" class="line input-line bottom"></div>
+      <div class="circle">
+        <div class="threshold-group">
+          <label for="threshold">Is sum ></label>
+          <input id="threshold" type="number" min="0" max="29" value="7">
+        </div>
+      </div>
+      <div id="outputLine" class="line output-line"></div>
+      <div id="output" class="output">?</div>
+      <div class="output_q">Should I go to Playground?</div>
+    </div>
+
+    <div class="controls">
+      <div id="sumDisplay" class="sum-display">Sum: </div>
+      <div class="hint">Check the inputs that are true. Each input is multiplied by its weight, & if the weighted total is greater than the threshold, output shows thumbs up.</div>
+    </div>
+  </div>
+
+  <script>
+    const inputs = [
+      document.getElementById('input1'),
+      document.getElementById('input2'),
+      document.getElementById('input3')
+    ];
+    const weights = [
+      document.getElementById('weight1'),
+      document.getElementById('weight2'),
+      document.getElementById('weight3')
+    ];
+    const weightValues = [
+      document.getElementById('weightValue1'),
+      document.getElementById('weightValue2'),
+      document.getElementById('weightValue3')
+    ];
+    const thresholdInput = document.getElementById('threshold');
+    const output = document.getElementById('output');
+    const outputLine = document.getElementById('outputLine');
+    const sumDisplay = document.getElementById('sumDisplay');
+    const inputLineTop = document.getElementById('inputLineTop');
+    const inputLineMiddle = document.getElementById('inputLineMiddle');
+    const inputLineBottom = document.getElementById('inputLineBottom');
+
+    function parseBinaryValue(input) {
+      return input.checked ? 1 : 0;
+    }
+
+    function updateOutput() {
+      weights.forEach(function (weight, index) {
+        weightValues[index].textContent = weight.value;
+      });
+
+      [inputLineTop, inputLineMiddle, inputLineBottom].forEach(function (line, index) {
+        line.style.background = inputs[index].checked ? '#222' : '#999';
+      });
+
+      inputLineTop.style.height = (Number(weights[0].value) || 1) * 1.5 + 'px';
+      inputLineMiddle.style.height = (Number(weights[1].value) || 1) * 1.5 + 'px';
+      inputLineBottom.style.height = (Number(weights[2].value) || 1) * 1.5 + 'px';
+
+      const sum = inputs.reduce(function (total, input, index) {
+        const weight = Number(weights[index].value) || 1;
+        return total + (parseBinaryValue(input) * weight);
+      }, 0);
+      const threshold = Math.min(29, Math.max(0, Number(thresholdInput.value) || 0));
+      const isActive = sum > threshold;
+      sumDisplay.textContent = 'Sum = ' + sum;
+      outputLine.style.background = isActive ? '#222' : '#999';
+
+      output.textContent = isActive ? '👍' : '👎';
+    }
+
+    inputs.concat(weights, thresholdInput).forEach(function (input) {
+      input.addEventListener('input', updateOutput);
+      input.addEventListener('change', updateOutput);
+    });
+
+    updateOutput();
+  </script>
+</body>
+</html>
