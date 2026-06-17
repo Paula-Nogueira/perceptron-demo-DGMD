@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simple Perceptron</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      color: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 1100px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 16px;
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 30px;
+      font-size: 32px;
+    }
+
+    .diagram {
+      position: relative;
+      width: 100%;
+      height: 560px;
+    }
+
+    .circle {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 220px;
+      height: 220px;
+      margin-left: -110px;
+      margin-top: -110px;
+      border: 3px solid #222;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      background: #fff;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .line {
+      position: absolute;
+      height: 3px;
+      background: #222;
+      transform-origin: left center;
+    }
+
+    .input-group {
+      position: absolute;
+      width: 210px;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .input-group input {
+      width: 80px;
+      padding: 8px 10px;
+      font-size: 18px;
+      border: 1px solid #999;
+      border-radius: 8px;
+    }
+
+    .input-top {
+      left: 60px;
+      top: 60px;
+    }
+
+    .input-middle {
+      left: 20px;
+      top: 245px;
+    }
+
+    .input-bottom {
+      left: 60px;
+      top: 430px;
+    }
+
+    .line-top {
+      left: 270px;
+      top: 120px;
+      width: 220px;
+      transform: rotate(28deg);
+    }
+
+    .line-middle {
+      left: 230px;
+      top: 280px;
+      width: 210px;
+    }
+
+    .line-bottom {
+      left: 270px;
+      top: 445px;
+      width: 220px;
+      transform: rotate(-28deg);
+    }
+
+    .output-line {
+      left: calc(50% + 110px);
+      top: 280px;
+      width: 210px;
+    }
+
+    .output {
+      position: absolute;
+      left: calc(50% + 350px);
+      top: 225px;
+      width: 180px;
+      text-align: center;
+    }
+
+    .output h2 {
+      margin: 0 0 14px;
+      font-size: 28px;
+    }
+
+    .result-icon {
+      font-size: 72px;
+      line-height: 1;
+    }
+
+    .submit-area {
+      position: absolute;
+      left: 50%;
+      top: 430px;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+
+    button {
+      padding: 12px 28px;
+      font-size: 18px;
+      border: none;
+      border-radius: 999px;
+      background: #222;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .message {
+      margin-top: 12px;
+      font-size: 18px;
+      min-height: 24px;
+    }
+
+    @media (max-width: 980px) {
+      .diagram {
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .circle,
+      .line,
+      .input-group,
+      .output,
+      .submit-area {
+        position: static;
+        margin: 0;
+        transform: none;
+      }
+
+      .circle {
+        width: 180px;
+        height: 180px;
+        font-size: 22px;
+      }
+
+      .line {
+        width: 120px;
+      }
+
+      .input-group,
+      .output {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <h1>Perceptron Diagram</h1>
+
+    <div class="diagram">
+      <div class="input-group input-top">
+        <label for="input1">Input 1</label>
+        <input id="input1" type="number" min="0" max="1" value="0">
+      </div>
+
+      <div class="input-group input-middle">
+        <label for="input2">Input 2</label>
+        <input id="input2" type="number" min="0" max="1" value="0">
+      </div>
+
+      <div class="input-group input-bottom">
+        <label for="input3">Input 3</label>
+        <input id="input3" type="number" min="0" max="1" value="0">
+      </div>
+
+      <div class="line line-top"></div>
+      <div class="line line-middle"></div>
+      <div class="line line-bottom"></div>
+
+      <div class="circle">Perceptron</div>
+
+      <div class="line output-line"></div>
+
+      <div class="output">
+        <h2>Output</h2>
+        <div id="resultIcon" class="result-icon">?</div>
+      </div>
+
+      <div class="submit-area">
+        <button id="submitBtn">Submit</button>
+        <div id="message" class="message"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const input1 = document.getElementById("input1");
+    const input2 = document.getElementById("input2");
+    const input3 = document.getElementById("input3");
+    const submitBtn = document.getElementById("submitBtn");
+    const resultIcon = document.getElementById("resultIcon");
+    const message = document.getElementById("message");
+
+    function normalizeValue(value) {
+      return value === 1 ? 1 : 0;
+    }
+
+    submitBtn.addEventListener("click", function () {
+      const value1 = normalizeValue(Number(input1.value));
+      const value2 = normalizeValue(Number(input2.value));
+      const value3 = normalizeValue(Number(input3.value));
+
+      input1.value = value1;
+      input2.value = value2;
+      input3.value = value3;
+
+      const sum = value1 + value2 + value3;
+
+      if (sum > 1) {
+        resultIcon.textContent = "👍";
+        message.textContent = "Sum = " + sum + ". Output is thumbs up.";
+      } else {
+        resultIcon.textContent = "👎";
+        message.textContent = "Sum = " + sum + ". Output is thumbs down.";
+      }
+    });
+  </script>
+</body>
+</html>
